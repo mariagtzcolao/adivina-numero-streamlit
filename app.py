@@ -54,6 +54,23 @@ def reset_game(range_max: int, max_attempts: int, difficulty_label: str):
 # UI
 # ----------------------------
 st.title("Adivina el número")
+
+import requests
+if st.button("DEBUG: comprobar conexión Supabase"):
+    url = st.secrets["SUPABASE_URL"].strip()
+    key = st.secrets["SUPABASE_ANON_KEY"].strip()
+
+    # endpoint REST directo (sin supabase-py)
+    test_url = f"{url}/rest/v1/"
+    r = requests.get(
+        test_url,
+        headers={"apikey": key, "Authorization": f"Bearer {key}"},
+        timeout=10,
+    )
+    st.write("URL usada:", test_url)
+    st.write("Status:", r.status_code)
+    st.write("Respuesta:", r.text[:3000])
+
 st.write("Elige dificultad y juega.")
 
 alias = st.text_input("Tu alias (opcional)", value="Anónimo").strip()
@@ -134,6 +151,7 @@ st.divider()
 st.subheader("Historial")
 for line in st.session_state.history:
     st.write("- " + line)
+
 
 
 
