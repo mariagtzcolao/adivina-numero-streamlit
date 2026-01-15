@@ -54,15 +54,6 @@ def reset_game(range_max: int, max_attempts: int, difficulty_label: str):
 # UI
 # ----------------------------
 st.title("Adivina el número")
-import socket
-from urllib.parse import urlparse
-
-st.subheader("DEBUG (temporal)")
-raw_url = st.secrets.get("SUPABASE_URL", "")
-st.write("SUPABASE_URL repr:", repr(raw_url))
-
-parsed = urlparse(raw_url)
-st.write("Parsed hostname:", parsed.hostname)
 
 if parsed.hostname:
     try:
@@ -150,6 +141,7 @@ st.divider()
 st.subheader("Historial")
 for line in st.session_state.history:
     st.write("- " + line)
+
 
 
 
