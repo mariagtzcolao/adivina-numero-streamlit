@@ -54,13 +54,6 @@ def reset_game(range_max: int, max_attempts: int, difficulty_label: str):
 # UI
 # ----------------------------
 st.title("Adivina el número")
-
-if parsed.hostname:
-    try:
-        ip = socket.gethostbyname(parsed.hostname)
-        st.write("DNS OK -> IP:", ip)
-    except Exception as e:
-        st.write("DNS FAIL ->", repr(e))
 st.write("Elige dificultad y juega.")
 
 alias = st.text_input("Tu alias (opcional)", value="Anónimo").strip()
@@ -141,6 +134,7 @@ st.divider()
 st.subheader("Historial")
 for line in st.session_state.history:
     st.write("- " + line)
+
 
 
 
