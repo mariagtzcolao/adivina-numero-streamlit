@@ -1,20 +1,19 @@
 import random
 from datetime import datetime
 
+import requests
 import streamlit as st
-from supabase import create_client
+
 
 # ----------------------------
-# Supabase
+# Supabase (REST)
 # ----------------------------
-def get_supabase():
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_ANON_KEY"]
-    return create_client(url, key)
-
 def save_game_result(alias: str, result: str, attempts_used: int, max_attempts: int, range_max: int, difficulty: str):
-    supabase = get_supabase()
-    supabase.table("game_runs").insert({
+    url = st.secrets["SUPABASE_URL"].strip()
+    key = st.secrets["SUPABASE_ANON_KEY"].strip()
+
+    insert_url = f"{url}/rest/v1/game_runs"
+    payload = {
         "played_at": datetime.utcnow().isoformat(),
         "alias": alias,
         "result": result,
@@ -22,7 +21,22 @@ def save_game_result(alias: str, result: str, attempts_used: int, max_attempts: 
         "max_attempts": max_attempts,
         "secret_range_max": range_max,
         "difficulty": difficulty,
-    }).execute()
+    }
+
+    r = requests.post(
+        insert_url,
+        headers={
+            "apikey": key,
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal",
+        },
+        json=payload,
+        timeout=10,
+    )
+
+    if r.status_code not in (200, 201, 204):
+        raise RuntimeError(f"Supabase REST error: {r.status_code} {r.text}")
 
 
 # ----------------------------
@@ -54,23 +68,6 @@ def reset_game(range_max: int, max_attempts: int, difficulty_label: str):
 # UI
 # ----------------------------
 st.title("Adivina el número")
-
-import requests
-if st.button("DEBUG: comprobar conexión Supabase"):
-    url = st.secrets["SUPABASE_URL"].strip()
-    key = st.secrets["SUPABASE_ANON_KEY"].strip()
-
-    # endpoint REST directo (sin supabase-py)
-    test_url = f"{url}/rest/v1/"
-    r = requests.get(
-        test_url,
-        headers={"apikey": key, "Authorization": f"Bearer {key}"},
-        timeout=10,
-    )
-    st.write("URL usada:", test_url)
-    st.write("Status:", r.status_code)
-    st.write("Respuesta:", r.text[:3000])
-
 st.write("Elige dificultad y juega.")
 
 alias = st.text_input("Tu alias (opcional)", value="Anónimo").strip()
@@ -151,6 +148,8 @@ st.divider()
 st.subheader("Historial")
 for line in st.session_state.history:
     st.write("- " + line)
+
+
 
 
 
