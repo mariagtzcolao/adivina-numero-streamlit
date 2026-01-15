@@ -53,7 +53,23 @@ def reset_game(range_max: int, max_attempts: int, difficulty_label: str):
 # ----------------------------
 # UI
 # ----------------------------
-st.title("Adivina el número (web)")
+st.title("Adivina el número")
+import socket
+from urllib.parse import urlparse
+
+st.subheader("DEBUG (temporal)")
+raw_url = st.secrets.get("SUPABASE_URL", "")
+st.write("SUPABASE_URL repr:", repr(raw_url))
+
+parsed = urlparse(raw_url)
+st.write("Parsed hostname:", parsed.hostname)
+
+if parsed.hostname:
+    try:
+        ip = socket.gethostbyname(parsed.hostname)
+        st.write("DNS OK -> IP:", ip)
+    except Exception as e:
+        st.write("DNS FAIL ->", repr(e))
 st.write("Elige dificultad y juega.")
 
 alias = st.text_input("Tu alias (opcional)", value="Anónimo").strip()
@@ -134,6 +150,7 @@ st.divider()
 st.subheader("Historial")
 for line in st.session_state.history:
     st.write("- " + line)
+
 
 
 
